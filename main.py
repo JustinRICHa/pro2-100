@@ -54,6 +54,43 @@ def fetch_users(connection, condition: str = None) -> list[tuple]:
         print(e)
 
 
+#del
+def delete_user(connection, user_id:int):
+    query = "DELETE FROM users WHERE id = ?"
+    try:
+        with connection:
+            connection.execute(query,(user_id,))
+            print(f"USER ID: {user_id} was deleted!")
+    except Exception as e:
+        print(e)
+
+
+#update user
+def update_user(connection, user_id:int, email:str):
+    query = "UPDATE users SET email = ? WHERE id = ?"
+    try:
+        with connection:
+            connection.execute(query,(email, user_id))
+            print(f"User ID {user_id} has new email or {email} ")
+    except Exception as e:
+        print(e)
+
+#add multiple users at the same time
+def insert_users(connection, users:list[tuple[str, int, str]]):
+    query = "INSERT INTO users (name, age, email) VALUES (?, ?, ?)"
+    try:
+        with connection:
+            connection.executemany(query, users)
+            print(f"{len(users)} users were added to the database!")
+    except Exception as e:
+        print(e)
+
+
+
+
+
+
+
 
 
 
@@ -63,16 +100,39 @@ def main():
     #create table
         create_table(connection)
 
-        start = input("enter option: (add, delete, update, search, add Many):").lower()
-        if start == "add":
-            name = input("enter name: ")
-            age = int(input("enter age: "))
-            email = input("enter email: ")
-            insert_user(connection, name, age, email)
-        elif start == "search":
-            print("all users: ")
-            for user in fetch_users(connection):
-                print(user)
+        x= int(input("1 - activate, 2- freeze: "))
+        while x != 2:
+
+
+
+            start = input("enter option: (add, delete, update, search, add Many):").lower()
+            if start == "add":
+                name = input("enter name: ")
+                age = int(input("enter age: "))
+                email = input("enter email: ")
+                insert_user(connection, name, age, email)
+
+            elif start == "search":
+                print("all users: ")
+                for user in fetch_users(connection):
+                    print(user)
+
+            elif start == "delete":
+                user_id = int(input("Enter user ID: "))
+                delete_user(connection, user_id)
+
+            elif start == "update":
+                user_id = int(input("Enter user ID: "))
+                newemail = input("enter a new email: ")
+                update_user(connection, user_id, newemail)
+
+            elif start == "add many":
+                users = [("jeb", 15,"kerbal@ksp.com"),
+                        ("popeye", 106, "the_sailor@man.com"),
+                        ("Guido", 70, "guido@youknow.org")]
+                insert_users(connection, users)
+            x= int(input("1 - activate, 2- freeze: "))
+        
     finally:
         connection.close()
 
